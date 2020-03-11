@@ -1,6 +1,7 @@
 %{
 #include "lexico.h"
 int comprobar_entero(); 
+int comprobar_longitud();
 %}
 digito          			    [0-9]
 letra                	 	 	    [a-zA-Z]
@@ -41,7 +42,7 @@ iderr						printf("id error\n");
 "write"					    return WRITE;
 "read"					    return READ;
 ["]					    BEGIN(cadena); yymore();
-{id}    				    return ID;
+{id}    				    printf("comprobar\n");return comprobar_longitud();
 {entero}                                    return comprobar_entero();
 ";"                                         return SEMICOLON;
 ":"                                         return DOSPUNTOS;
@@ -68,4 +69,9 @@ int comprobar_entero() {
 		return ENTERO;
 }
 
-
+int comprobar_longitud(){
+	if(yyleng <= 16)
+		return ID;
+	else 
+		return ERR;
+}
