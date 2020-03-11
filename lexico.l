@@ -12,12 +12,13 @@ correctos				    ({id}|{entero}|"function"|"const"|"program"|"var"|"begin"|"end"
 %x panico
 %x cadena
 %%
+		int cars = 0;
 <cadena>[^"]				    yymore();
 <cadena>["]				    BEGIN(0); return STRING;
 
-<panico>[^{correctos}]			    yymore();
-<panico>{correctos} 			    BEGIN(0); return ERR; 	//yyless()
-<panico><<EOF>>				    return ERR;
+<panico>[^{correctos}]			    cars+=yyleng;yymore();
+<panico>{correctos} 			    yyless(cars);cars=0;BEGIN(0); return ERR; 	//yyless()
+<panico><<EOF>>				    cars=0;return ERR;
 
 "(*"					    BEGIN(comentario); yymore();
 <comentario>(.|\n)			    yymore();
@@ -42,7 +43,7 @@ iderr						printf("id error\n");
 "write"					    return WRITE;
 "read"					    return READ;
 ["]					    BEGIN(cadena); yymore();
-{id}    				    printf("comprobar\n");return comprobar_longitud();
+{id}    				    return comprobar_longitud();
 {entero}                                    return comprobar_entero();
 ";"                                         return SEMICOLON;
 ":"                                         return DOSPUNTOS;
@@ -70,8 +71,10 @@ int comprobar_entero() {
 }
 
 int comprobar_longitud(){
-	if(yyleng <= 16)
-		return ID;
-	else 
+	printf("COMPROBANDO ID\n");
+	if(yyleng > 16){
+		printf("identificador demasiado largo: %s\n", yytext);
 		return ERR;
+	} else 
+		return ID;
 }
